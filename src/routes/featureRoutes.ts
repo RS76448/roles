@@ -30,5 +30,5 @@ router.get('/:featureName', async (req: Request, res: Response) => {await Featur
  * @access  Protected
  */
 router.put('/',async (req: Request, res: Response) => {await FeatureController.updateFeature(req, res)});
-
+router.delete('/:id',async (req: Request, res: Response) => {FeatureController.deletemodel(req,res)});
 export default router;

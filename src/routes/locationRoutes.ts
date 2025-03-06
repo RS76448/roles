@@ -30,5 +30,5 @@ router.get('/:locationId',async (req: Request, res: Response) => { LocationContr
  * @access  Protected
  */
 router.put('/',async (req: Request, res: Response) => { LocationController.updateLocation(req,res)});
-
+router.delete('/:id',async (req: Request, res: Response) => {LocationController.deletemodel(req,res)});
 export default router;

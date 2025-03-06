@@ -33,4 +33,6 @@ router.get('/:assetId',async (req: Request, res: Response) => { await AssetContr
  */
 router.put('/',async (req: Request, res: Response) => {AssetController.updateAsset(req,res)});
 
+router.delete('/:id',async (req: Request, res: Response) => {AssetController.deletemodel(req,res)});
+
 export default router;

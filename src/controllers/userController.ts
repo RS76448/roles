@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import User from '@models/User';
 import Role from '@models/Role';
 import { IUser } from 'types/index';
+import { populate } from 'dotenv';
 
 export class UserController {
   /**
@@ -134,7 +135,17 @@ export class UserController {
   static async getAllUsers(req: Request, res: Response): Promise<Response> {
     try {
       const users = await User.find()
-        .populate('role');
+        .populate({
+          path:'role',
+          populate:[{
+            path:"features"
+          },{
+            path:"locations",
+            populate:[
+              {path:"assets"}
+            ]
+          }]
+        });
 
       return res.status(200).json(users);
     } catch (error) {
@@ -146,4 +157,28 @@ export class UserController {
       });
     }
   }
+   static async deletemodel(req: Request, res: Response): Promise<Response> {
+        try {
+          const asset = await User.findById(req.params.id);
+    
+          if (!asset) {
+            return res.status(404).json({ message: "Asset not found" });
+          }
+    
+          // **Delete related records if they exist**
+         
+    
+          // **Delete the asset**
+          await asset.deleteOne();
+    
+          return res.status(200).json({status:true});
+        } catch (error) {
+          console.error('Get asset error:', error);
+          
+          return res.status(500).json({ 
+            message: 'Other models are dependent on this User, It can not be deleted', 
+            error: error instanceof Error ? error.message : 'Unknown error' 
+          });
+        }
+      }
 }

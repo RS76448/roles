@@ -23,6 +23,7 @@ const UserSchema = new mongoose.Schema<IUser>({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Role'
   },
+  password: { type: String, required: true },
   createdAt: {
     type: Date,
     default: Date.now

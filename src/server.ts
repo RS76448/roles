@@ -26,13 +26,16 @@ import userRoutes from './routes/userRoutes';
 import locationRoutes from './routes/locationRoutes';
 import assetRoutes from './routes/assetRoutes';
 import featureRoutes from './routes/featureRoutes';
+import AuthRoute from '@routes/authroutes';
 
+import { authMiddleware } from '@middleware/authMiddleware';
 // Use Routes
-app.use('/api/roles', roleRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/locations', locationRoutes);
-app.use('/api/assets', assetRoutes);
-app.use('/api/features', featureRoutes);
+app.use('/api/roles',async (req:Request,res:Response,next:NextFunction)=>{await authMiddleware(req,res,next)}, roleRoutes);
+app.use('/api/users',async (req:Request,res:Response,next:NextFunction)=>{await authMiddleware(req,res,next)}, userRoutes);
+app.use('/api/locations',async (req:Request,res:Response,next:NextFunction)=>{await authMiddleware(req,res,next)}, locationRoutes);
+app.use('/api/assets',async (req:Request,res:Response,next:NextFunction)=>{await authMiddleware(req,res,next)}, assetRoutes);
+app.use('/api/features',async (req:Request,res:Response,next:NextFunction)=>{await authMiddleware(req,res,next)}, featureRoutes);
+app.use("/api/auth",AuthRoute );
 
 // Global Error Handler
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {

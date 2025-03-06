@@ -256,4 +256,27 @@ export class RoleController {
       });
     }
   }
+   static async deletemodel(req: Request, res: Response): Promise<Response> {
+      try {
+        const asset = await Role.findById(req.params.id);
+        if (!asset) {
+          return res.status(404).json({status:false, message: "model not found" });
+        }
+  
+        // **Delete related records if they exist**
+       
+  
+        // **Delete the asset**
+        await asset.deleteOne();
+  
+        return res.status(200).json({status:true});
+      } catch (error) {
+        console.error('Get asset error:', error);
+        
+        return res.status(500).json({ 
+          message: 'Other models are dependent on this Role, It can not be deleted', 
+          error: error instanceof Error ? error.message : 'Unknown error' 
+        });
+      }
+    }
 }

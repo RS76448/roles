@@ -30,5 +30,5 @@ router.get('/:userId',async (req: Request, res: Response) => { UserController.ge
  * @access  Protected
  */
 router.put('/',async (req: Request, res: Response) => { UserController.updateUser(req,res)});
-
+router.delete('/:id',async (req: Request, res: Response) => {UserController.deletemodel(req,res)});
 export default router;

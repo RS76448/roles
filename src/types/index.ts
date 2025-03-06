@@ -53,6 +53,7 @@ export interface IUser extends Document {
   email: string;
   role?: string;
   createdAt: Date;
+  password?:string
 }
 
 // Model Interfaces
