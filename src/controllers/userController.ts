@@ -162,7 +162,7 @@ export class UserController {
           const asset = await User.findById(req.params.id);
     
           if (!asset) {
-            return res.status(404).json({ message: "Asset not found" });
+            return res.status(404).json({status:false, message: "model not found" });
           }
     
           // **Delete related records if they exist**

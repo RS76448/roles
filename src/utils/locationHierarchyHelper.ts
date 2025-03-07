@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
 interface LocationData {
   name: string;
   level: number;
-  assets:string,
+  assets?:string,
   parentId?: string | null;
 }
 
