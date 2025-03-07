@@ -28,9 +28,10 @@ export class LocationController {
       }
       let parent;
       if(parentId){
-        parent=await Location.findById(parentId)
+        parent=await Location.findById(parentId).lean()
         let parentLevel=parent?.level
-        if(parentLevel&&level<=parentLevel){
+        // let parentLevel=parent?.level?parseInt(parent.level):0
+        if(parentLevel&&parentLevel>=level){
           return res.json({
             status:false,
             message:"Parent Level should be higher then child level"
@@ -75,6 +76,8 @@ export class LocationController {
       let childrenArray: string[] = [];
       let levelunder:number[]=[]
       let assetsArray: string[] = [];
+      levelunder.push(location.level)
+      location?.assets?.map(e=>e?.name&&assetsArray.push(e?.name))
       function traverse(node: ILocation): void {
           // Add child locations to array
           if (node.children) {
@@ -156,7 +159,17 @@ export class LocationController {
       location.assets=assets
       // Update parent if provided
       if (parentId) {
-        let parent=await Location.findById(parentId);
+        let level=location.level
+        let parent=await Location.findById(parentId).lean()
+        let parentLevel=parent?.level
+        // let parentLevel=parent?.level?parseInt(parent.level):0
+        if(parentLevel&&parentLevel>=level){
+          return res.json({
+            status:false,
+            message:"Parent Level should be higher then child level"
+          })
+        }
+        // let parent=await Location.findById(parentId);
         if(parent&&parent.parent==locationId){
           return res.json({
             status:false,
