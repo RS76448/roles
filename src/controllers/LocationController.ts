@@ -87,9 +87,9 @@ export class LocationController {
                       childrenArray.push(child.name);
                     }
                    
-                    if(!levelunder.includes(child.level)){
-                      levelunder.push(child.level)
-                    }
+                    // if(!levelunder.includes(child.level)){
+                    //   levelunder.push(child.level)
+                    // }
                     traverse(child); // Recursively process children
                   }
                  
