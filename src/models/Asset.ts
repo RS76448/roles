@@ -11,7 +11,7 @@ const AssetSchema = new mongoose.Schema<IAsset>({
   location: {
     type: String,
     ref: 'Location',
-    required: true
+    required: false
   },
   description: {
     type: String,

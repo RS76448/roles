@@ -42,7 +42,7 @@ export interface EmptyObj extends Document {
 // Asset Interface
 export interface IAsset extends Document {
   name: string;
-  location: string;
+  location?: string;
   description?: string;
   createdAt: Date;
 }

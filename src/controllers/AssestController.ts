@@ -13,12 +13,12 @@ export class AssetController {
       const { name, locationId, description } = req.body;
 
       // Validate location
-      const location = await Location.findById(locationId);
-      if (!location) {
-        return res.status(400).json({ 
-          message: 'Invalid location provided' 
-        });
-      }
+      // const location = await Location.findById(locationId);
+      // if (!location) {
+      //   return res.status(400).json({ 
+      //     message: 'Invalid location provided' 
+      //   });
+      // }
 
       const newAsset: IAsset = new Asset({
         name,
@@ -81,15 +81,15 @@ export class AssetController {
       }
 
       // Validate location if provided
-      if (locationId) {
-        const location = await Location.findById(locationId);
-        if (!location) {
-          return res.status(400).json({ 
-            message: 'Invalid location provided' 
-          });
-        }
-        asset.location = locationId;
-      }
+      // if (locationId) {
+      //   const location = await Location.findById(locationId);
+      //   if (!location) {
+      //     return res.status(400).json({ 
+      //       message: 'Invalid location provided' 
+      //     });
+      //   }
+      //   asset.location = locationId;
+      // }
 
       // Update other fields
       if (name) asset.name = name;
