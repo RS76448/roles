@@ -26,6 +26,18 @@ export class LocationController {
           });
         }
       }
+      let parent;
+      if(parentId){
+        parent=await Location.findById(parentId)
+        let parentLevel=parent?.level
+        if(parentLevel&&level<=parentLevel){
+          return res.json({
+            status:false,
+            message:"Parent Level should be higher then child level"
+          })
+        }
+      }
+     
       const location = await LocationHierarchyHelper.createLocationHierarchy({
         name,
         level,
@@ -53,12 +65,13 @@ export class LocationController {
       const location = await LocationHierarchyHelper.getLocationHierarchy(
         req.params.locationId
       );
-
+      
       if (!location) {
         return res.status(404).json({ 
           message: 'Location not found' 
         });
       }
+      let locationname=location.name
       let childrenArray: string[] = [];
       let levelunder:number[]=[]
       let assetsArray: string[] = [];
@@ -92,7 +105,7 @@ export class LocationController {
       }
   
       traverse(location);
-      return res.status(200).json({status:true,data:location,overalldata:{childrenArray,levelunder,assetsArray}});
+      return res.status(200).json({status:true,data:location,overalldata:{childrenArray:childrenArray?.filter((e)=>e!=locationname),levelunder,assetsArray}});
     } catch (error) {
       console.error('Get location error:', error);
       
@@ -143,6 +156,13 @@ export class LocationController {
       location.assets=assets
       // Update parent if provided
       if (parentId) {
+        let parent=await Location.findById(parentId);
+        if(parent&&parent.parent==locationId){
+          return res.json({
+            status:false,
+            message:"Parent/child cycle not allowed"
+          })
+        }
         // Remove from current parent's children
         if (location.parent) {
           await Location.findByIdAndUpdate(location.parent, {
@@ -191,6 +211,66 @@ export class LocationController {
         
         return res.status(500).json({ 
           message: 'Other models are dependent on this Location, It can not be deleted', 
+          error: error instanceof Error ? error.message : 'Unknown error' 
+        });
+      }
+    }
+    static async getviableparentlocations(req: Request, res: Response): Promise<Response> {
+      try {
+        let locationid=req.params.locationId
+        const location= await Location.findById(locationid)
+        const locations = await Location.find()
+          .populate('parent')
+          .populate('children');
+        const childs=await LocationHierarchyHelper.getLocationHierarchy(locationid)
+        
+        let childrenArray: string[] = [];
+       
+       if(childs){
+        function traverse(node: ILocation): void {
+          // Add child locations to array
+          if (node.children) {
+              node.children.forEach(child => {
+                  if(!(child instanceof mongoose.Types.ObjectId)){
+                    if(!childrenArray.includes(child._id.toString())){
+                      childrenArray.push(child._id.toString());
+                    }
+                   
+                   
+                    traverse(child); // Recursively process children
+                  }
+                 
+              });
+          }
+        
+          
+      }
+  
+        traverse(childs);
+       }
+       
+        // let viablelocations=locations?.filter((e)=>{
+        //   let stringedID=e._id.toString()
+        //   if((!childrenArray.includes(stringedID))&&(stringedID!=locationid)&&(location?.parent&&!childrenArray?.includes(location?.parent.toString()))){
+        //     return e
+        //   }
+        // })
+        let viableLocations = locations?.filter((e) => {
+          let stringedID = e._id.toString();
+          
+          return (
+              !childrenArray.includes(stringedID) && 
+              stringedID !== locationid && 
+              (!location?.parent || !(location.parent.toString()==stringedID))
+          );
+      });
+      
+        return res.status(200).json(viableLocations);
+      } catch (error) {
+        console.error('Get all locations error:', error);
+        
+        return res.status(500).json({ 
+          message: 'Error retrieving locations', 
           error: error instanceof Error ? error.message : 'Unknown error' 
         });
       }

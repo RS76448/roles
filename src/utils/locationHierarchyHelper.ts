@@ -85,11 +85,17 @@ export class LocationHierarchyHelper {
     const location = await Location.findById(locationId).populate('children').populate('assets').lean();
 
     if (!location) return null;
-
+    const visited = new Set<string>();
     // Recursive function to populate children fully
     async function populateChildren(loc: ILocation): Promise<ILocation> {
         if (!loc.children || loc.children.length === 0) return loc;
 
+        // Prevent cycles by checking if the location has already been processed
+        if (visited.has(loc.name.toString())) {
+          console.warn(`Cycle detected: Skipping location ${loc._id}`);
+          return loc;
+      }
+      visited.add(loc.name.toString()); // Mark this location as visited
         // Separate string IDs from actual objects
         // console.log("loc.childern",loc.children)
         const childIds = loc.children.filter((child): child is mongoose.Types.ObjectId => 
@@ -110,7 +116,7 @@ export class LocationHierarchyHelper {
             await populateChildren(child);
         }
 
-        return loc;
+        return loc; 
     }
 
     return populateChildren(location);

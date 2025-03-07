@@ -23,6 +23,7 @@ router.get('/',async (req: Request, res: Response) => { LocationController.getAl
  * @access  Protected
  */
 router.get('/:locationId',async (req: Request, res: Response) => { LocationController.getLocationById(req,res)});
+router.get('/getviableparentlocations/:locationId',async (req: Request, res: Response) => { LocationController.getviableparentlocations(req,res)});
 
 /**
  * @route   PUT /api/locations
