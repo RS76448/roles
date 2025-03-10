@@ -37,7 +37,7 @@ const RoleSchema = new mongoose.Schema<IRole>({
 });
 
 // Optional: Add indexes for performance
-RoleSchema.index({ name: 1 });
+// RoleSchema.index({ name: 1 });
 
 const Role = mongoose.model<IRole>('Role', RoleSchema);
 

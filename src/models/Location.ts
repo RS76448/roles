@@ -32,7 +32,7 @@ const LocationSchema = new mongoose.Schema<ILocation>({
 });
 
 // Ensure unique combination of name and level
-LocationSchema.index({ name: 1, level: 1 }, { unique: true });
+// LocationSchema.index({ name: 1, level: 1 }, { unique: true });
 
 const Location = mongoose.model<ILocation>('Location', LocationSchema);
 
