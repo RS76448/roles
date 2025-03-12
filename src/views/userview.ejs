@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3b82f6;
+            --primary-dark: #2563eb;
+            --primary-light: #dbeafe;
+            --accent-color: #f97316;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --neutral-light: #f9fafb;
+            --neutral-dark: #1f2937;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+        
+        .user-card {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+        }
+        
+        .user-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 500;
+            font-size: 0.75rem;
+        }
+        
+        .badge-primary {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+        }
+        
+        .badge-accent {
+            background-color: #fff7ed;
+            color: var(--accent-color);
+        }
+        
+        .badge-neutral {
+            background-color: #f3f4f6;
+            color: #4b5563;
+        }
+        
+        .avatar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 3rem;
+            height: 3rem;
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            font-weight: 600;
+            border-radius: 9999px;
+        }
+        
+        .feature-item {
+            border-left: 2px solid var(--primary-light);
+            transition: all 0.2s;
+        }
+        
+        .feature-item:hover {
+            border-left-color: var(--primary-color);
+            background-color: #fafafa;
+        }
+        
+        .tab {
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+        
+        .tab:hover:not(.active) {
+            color: #4b5563;
+            border-bottom-color: #e5e7eb;
+        }
+        
+        .content-section {
+            display: none;
+        }
+        
+        .content-section.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="min-h-screen py-8">
+    <div class="container mx-auto px-4">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-center mb-2">User Management</h1>
+            <p class="text-center text-gray-600">Viewing <%= users.length %> user<%= users.length !== 1 ? 's' : '' %></p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <% users.forEach(user => { %>
+                <div class="user-card overflow-hidden">
+                    <!-- User Header -->
+                    <div class="p-6 border-b border-gray-100">
+                        <div class="flex items-center space-x-4">
+                            <div class="avatar">
+                                <%= user.username.substring(0, 2).toUpperCase() %>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-lg"><%= user.username %></h3>
+                                <p class="text-gray-600 text-sm"><%= user.email %></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- User Details -->
+                    <div class="p-4 bg-gray-50">
+                        <div class="flex items-center justify-between text-sm">
+                            <div class="text-gray-500">User ID:</div>
+                            <div class="font-mono text-xs"><%= user._id %></div>
+                        </div>
+                        <div class="flex items-center justify-between text-sm mt-2">
+                            <div class="text-gray-500">Created:</div>
+                            <div><%= new Date(user.createdAt).toLocaleDateString() %></div>
+                        </div>
+                    </div>
+                    
+                    <!-- User Role (if any) -->
+                    <% if (user.role) { %>
+                        <div class="p-6 border-t border-gray-100">
+                            <div class="mb-4">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="font-medium">Role</h4>
+                                    <span class="badge badge-primary"><%= user.role.name %></span>
+                                </div>
+                            </div>
+                            
+                            <!-- Role Details Tabs -->
+                            <div class="border-b border-gray-200">
+                                <div class="flex" role="tablist" data-user-id="<%= user._id %>">
+                                    <div class="tab active" data-tab="privileges-<%= user._id %>">
+                                        Privileges
+                                    </div>
+                                    <div class="tab" data-tab="features-<%= user._id %>">
+                                        Features
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Tab Contents -->
+                            <div class="py-3">
+                                <!-- Privileges Tab -->
+                                <div id="privileges-<%= user._id %>" class="content-section active">
+                                    <% if (user.role.privileges && user.role.privileges.length > 0) { %>
+                                        <div class="flex flex-wrap gap-2">
+                                            <% user.role.privileges.forEach(privilege => { %>
+                                                <span class="badge badge-accent"><%= privilege %></span>
+                                            <% }); %>
+                                        </div>
+                                    <% } else { %>
+                                        <p class="text-sm text-gray-500">No privileges assigned</p>
+                                    <% } %>
+                                </div>
+                                
+                                <!-- Features Tab -->
+                                <div id="features-<%= user._id %>" class="content-section">
+                                    <% if (user.role.features && user.role.features.length > 0) { %>
+                                        <div class="space-y-2">
+                                            <% user.role.features.forEach(feature => { %>
+                                                <div class="feature-item pl-3 py-2">
+                                                    <div class="text-sm font-medium"><%= feature.name %></div>
+                                                    <div class="text-xs text-gray-500"><%= feature.description %></div>
+                                                </div>
+                                            <% }); %>
+                                        </div>
+                                    <% } else { %>
+                                        <p class="text-sm text-gray-500">No features assigned</p>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                    <% } else { %>
+                        <div class="p-6 border-t border-gray-100">
+                            <div class="flex items-center justify-between">
+                                <h4 class="font-medium">Role</h4>
+                                <span class="badge badge-neutral">No Role Assigned</span>
+                            </div>
+                        </div>
+                    <% } %>
+                    
+                    <!-- Actions -->
+                    <div class="p-4 bg-gray-50 border-t border-gray-100 flex justify-end space-x-2">
+                        <button class="px-3 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                            Edit
+                        </button>
+                        <button class="px-3 py-1 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab functionality
+            const tabs = document.querySelectorAll('.tab');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Get the user ID from the parent tablist
+                    const userId = this.parentElement.getAttribute('data-user-id');
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    // Remove active class from all tabs in this user's card
+                    this.parentElement.querySelectorAll('.tab').forEach(t => {
+                        t.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    
+                    // Hide all content sections in this user's card
+                    document.querySelectorAll(`.content-section[id$="-${userId}"]`).forEach(section => {
+                        section.classList.remove('active');
+                    });
+                    
+                    // Show the selected content section
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

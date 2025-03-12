@@ -217,7 +217,42 @@ export class RoleController {
       });
     }
   }
+  static async getRoleByIdView(req: Request, res: Response): Promise<Response|void> {
+    try {
+      const role = await Role.findById(req.params.roleId)
+        .populate('features')
+        .populate({
+          path: 'locations',
+          populate: [
+              { path: 'children' },   // Populate children inside locations
+              { path: 'assets' }      // Populate assets inside locations
+          ]
+      })
+       .lean()
+      
+      if (!role) {
+        return res.status(404).json({ 
+          message: 'Role not found' 
+        });
+      }
 
+      if (role && role.locations) {
+        // for (let i = 0; i < role.locations.length; i++) {
+        //     role.locations[i] = await this.populateChildren(role.locations[i]);
+        // }
+    }
+      return res.render('roleview.ejs',{role})
+      return res.status(200).json(role);
+    } catch (error) {
+      console.error('Get role error:', error);
+      
+      return res.status(500).json({ 
+        message: 'Error retrieving role', 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      });
+    }
+  }
+  
 
   static async  populateChildren(location: ILocation): Promise<ILocation> {
     if (!location.children || location.children.length === 0) {

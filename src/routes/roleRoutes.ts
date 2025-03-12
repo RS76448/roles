@@ -29,7 +29,7 @@ router.get('/', async (req: Request, res: Response) => {
 router.get('/:roleId', async (req: Request, res: Response) => {
   await RoleController.getRoleById(req, res);
 });
-
+router.get('/view/:roleId',async (req: Request, res: Response) => { RoleController.getRoleByIdView(req,res)});
 router.delete('/:id',async (req: Request, res: Response) => {RoleController.deletemodel(req,res)});
 /**
  * @route   PUT /api/roles

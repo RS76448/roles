@@ -23,7 +23,7 @@ router.get('/', async (req: Request, res: Response) => {UserController.getAllUse
  * @access  Protected
  */
 router.get('/:userId',async (req: Request, res: Response) => { UserController.getUserById(req,res)});
-
+router.get('/view/:userId',async (req: Request, res: Response) => { UserController.getUserByIdView(req,res)});
 /**
  * @route   PUT /api/users
  * @desc    Update user

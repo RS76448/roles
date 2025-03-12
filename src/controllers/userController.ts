@@ -57,6 +57,34 @@ export class UserController {
   /**
    * Get user by ID
    */
+  
+  static async getUserByIdView(req: Request, res: Response): Promise<Response|void> {
+    try {
+      const user = await User.findById(req.params.userId)
+      .populate({
+        path: 'role',
+        populate: [
+            { path: 'locations' },   // Populate children inside locations
+            { path: 'features' }      // Populate assets inside locations
+        ]
+    })
+        
+      if (!user) {
+        return res.status(404).json({ 
+          message: 'User not found' 
+        });
+      }
+
+      return res.render("userview",{users:[user]});
+    } catch (error) {
+      console.error('Get user error:', error);
+      
+      return res.status(500).json({ 
+        message: 'Error retrieving user', 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      });
+    }
+  }
   static async getUserById(req: Request, res: Response): Promise<Response> {
     try {
       const user = await User.findById(req.params.userId)

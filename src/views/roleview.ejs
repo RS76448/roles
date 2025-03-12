@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Role Details: <%= role.name %></title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-light: #e0e7ff;
+            --secondary-color: #0f172a;
+            --accent-color: #c7d2fe;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --success-color: #22c55e;
+            --warning-color: #f59e0b;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 500;
+            font-size: 0.75rem;
+            line-height: 1rem;
+        }
+        
+        .badge-primary {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+        }
+        
+        .badge-secondary {
+            background-color: #f3f4f6;
+            color: #4b5563;
+        }
+        
+        .list-item {
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .list-item:hover {
+            border-left-color: var(--primary-color);
+            background-color: #fafafa;
+        }
+
+        .location-tree {
+            padding-left: 1.5rem;
+            border-left: 1px dashed #cbd5e1;
+        }
+        
+        .location-item {
+            position: relative;
+        }
+        
+        .location-item::before {
+            content: "";
+            position: absolute;
+            left: -1.5rem;
+            top: 0.75rem;
+            width: 0.75rem;
+            height: 1px;
+            background-color: #cbd5e1;
+        }
+    </style>
+</head>
+<body class="min-h-screen py-8">
+    <div class="container mx-auto px-4">
+        <header class="mb-8">
+            <div class="flex items-center justify-between">
+                <h1 class="text-3xl font-bold text-gray-900"><%= role.name %></h1>
+                <div class="text-sm text-gray-500">
+                    <div>Created: <%= new Date(role.createdAt).toLocaleDateString() %></div>
+                    <div>Last Updated: <%= new Date(role.updatedAt).toLocaleDateString() %></div>
+                </div>
+            </div>
+            <div class="mt-2 flex items-center">
+                <span class="text-gray-500">Role ID:</span>
+                <span class="ml-2 font-mono text-sm text-gray-700"><%= role._id %></span>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Privileges Section -->
+            <div class="card p-6">
+                <h2 class="text-xl font-semibold mb-4 pb-2 border-b border-gray-200">Privileges</h2>
+                <% if (role.privileges && role.privileges.length > 0) { %>
+                    <div class="space-y-2">
+                        <% role.privileges.forEach(privilege => { %>
+                            <div class="badge badge-primary"><%= privilege %></div>
+                        <% }); %>
+                    </div>
+                <% } else { %>
+                    <p class="text-gray-500">No privileges assigned</p>
+                <% } %>
+            </div>
+
+            <!-- Features Section -->
+            <div class="card p-6">
+                <h2 class="text-xl font-semibold mb-4 pb-2 border-b border-gray-200">Features</h2>
+                <% if (role.features && role.features.length > 0) { %>
+                    <div class="space-y-3">
+                        <% role.features.forEach(feature => { %>
+                            <div class="list-item p-3">
+                                <div class="font-medium text-gray-800"><%= feature.name %></div>
+                                <div class="text-sm text-gray-600 mt-1"><%= feature.description %></div>
+                            </div>
+                        <% }); %>
+                    </div>
+                <% } else { %>
+                    <p class="text-gray-500">No features assigned</p>
+                <% } %>
+            </div>
+
+            <!-- Locations Section -->
+            <div class="card p-6 md:col-span-2 lg:col-span-1">
+                <h2 class="text-xl font-semibold mb-4 pb-2 border-b border-gray-200">Locations</h2>
+                <% if (role.locations && role.locations.length > 0) { %>
+                    <div class="space-y-6">
+                        <% role.locations.forEach(location => { %>
+                            <div class="list-item p-3">
+                                <div class="font-medium text-gray-800"><%= location.name %></div>
+                                <div class="flex items-center mt-1 mb-2">
+                                    <span class="badge badge-secondary">Level <%= location.level %></span>
+                                    <span class="text-xs text-gray-500 ml-3">ID: <%= location._id %></span>
+                                </div>
+
+                                <% if (location.children && location.children.length > 0) { %>
+                                    <div class="mt-3">
+                                        <div class="text-sm font-medium text-gray-700 mb-2">Child Locations:</div>
+                                        <div class="location-tree">
+                                            <% location.children.forEach(child => { %>
+                                                <div class="location-item py-2">
+                                                    <div class="font-medium text-gray-700"><%= child.name %></div>
+                                                    <div class="flex items-center mt-1">
+                                                        <span class="badge badge-secondary text-xs">Level <%= child.level %></span>
+                                                        <% if (child.assets && child.assets.length > 0) { %>
+                                                            <span class="text-xs text-gray-500 ml-2">
+                                                                <%= child.assets.length %> Asset<%= child.assets.length !== 1 ? 's' : '' %>
+                                                            </span>
+                                                        <% } %>
+                                                    </div>
+                                                </div>
+                                            <% }); %>
+                                        </div>
+                                    </div>
+                                <% } %>
+                            </div>
+                        <% }); %>
+                    </div>
+                <% } else { %>
+                    <p class="text-gray-500">No locations assigned</p>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add any client-side interactivity here if needed
+        });
+    </script>
+</body>
+</html>
