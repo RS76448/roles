@@ -13,6 +13,14 @@ export class LocationController {
   static async createLocation(req: Request, res: Response): Promise<Response> {
     try {
       const { name, level, parentId,assets } = req.body;
+      const alreadythere = await Location.findOne({name:name});
+      // console.log(alreadythere)
+      if (alreadythere) {
+        return res.status(400).json({ 
+          status:false,
+          message: 'Location name already in use' 
+        });
+      }
       // console.log("name")
       //  Validate assets
       if (assets) {
@@ -118,7 +126,85 @@ export class LocationController {
       });
     }
   }
-
+  static async getLocationByIdView(req: Request, res: Response): Promise<Response|void> {
+    try {
+      const location = await LocationHierarchyHelper.getLocationHierarchy(
+        req.params.locationId
+      );
+      
+      if (!location) {
+        return res.status(404).json({ 
+          message: 'Location not found' 
+        });
+      }
+      let locationname=location.name
+      let childrenArray: string[] = [];
+      let levelunder:number[]=[]
+      let assetsArray: string[] = [];
+      levelunder.push(location.level)
+      location?.assets?.map(e=>e?.name&&assetsArray.push(e?.name))
+      async function traverse(node: ILocation): Promise<void> {
+          // Add child locations to array
+          if (node.children) {
+            for (const child of node.children) {
+              if (!(child instanceof mongoose.Types.ObjectId)) {
+                if (!childrenArray.includes(child.name)) {
+                  childrenArray.push(child.name);
+                }
+                // Await the recursive call to ensure all processing completes
+                await traverse(child);
+              }
+            }
+          }
+          if (node.assets && node.assets.length > 0) {
+            for (const asset of node.assets) {
+              if (asset.name) {
+                if (!assetsArray.includes(asset.name)) {
+                  assetsArray.push(asset.name);
+                }
+              } else if (asset instanceof mongoose.Types.ObjectId) {
+                try {
+                  const assetDoc = await Asset.findById(asset);
+                  const assetname = assetDoc?.name;
+                  if (assetname && !assetsArray.includes(assetname)) {
+                    assetsArray.push(assetname);
+                  }
+                } catch (err) {
+                  console.error(`Error fetching asset ${asset}:`, err);
+                  // Continue processing even if one asset fails
+                }
+              }
+            }
+          }
+          
+      }
+  
+      await traverse(location);
+      // return res.json( {
+      //   data: location,
+      //   overalldata: {
+      //     childrenArray: childrenArray?.filter((e) => e != locationname),
+      //     levelunder,
+      //     assetsArray
+      //   }
+      // });
+      return res.render('locationview', {
+        data: location,
+        overalldata: {
+          childrenArray: childrenArray?.filter((e) => e != locationname),
+          levelunder,
+          assetsArray
+        }
+      });
+    } catch (error) {
+      console.error('Get location error:', error);
+      
+      return res.status(500).json({ 
+        message: 'Error retrieving location', 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      });
+    }
+  }
   /**
    * Get all locations
    */

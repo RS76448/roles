@@ -6,7 +6,8 @@ const AssetSchema = new mongoose.Schema<IAsset>({
   name: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
+    unique:true
   },
   location: {
     type: String,

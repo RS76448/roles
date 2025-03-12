@@ -1,0 +1,45 @@
+<!-- views/partials/node.ejs -->
+<div class="node border-l-4 border-blue-500 pl-4 py-2 mb-2">
+    <div class="flex justify-between items-center">
+        <div class="flex items-center">
+            <% if (node.children && node.children.length > 0) { %>
+                <span class="toggle-btn font-bold mr-2">▼</span>
+            <% } else { %>
+                <span class="mr-2 text-gray-400">●</span>
+            <% } %>
+            <div>
+                <h3 class="font-semibold"><%= node.name %></h3>
+                <div class="text-sm text-gray-600">
+                    <span class="mr-4">ID: <%= node._id %></span>
+                    <span class="mr-4">Level: <%= node.level %></span>
+                    <% if (node.parent) { %>
+                        <span>Parent: <%= node.parent %></span>
+                    <% } else { %>
+                        <span>Root Node</span>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+        <div class="text-sm text-gray-500">
+            <div>Created: <%= new Date(node.createdAt).toLocaleDateString() %></div>
+            <div>Updated: <%= new Date(node.updatedAt).toLocaleDateString() %></div>
+        </div>
+    </div>
+    
+    <% if (node.children && node.children.length > 0) { %>
+        <div class="children mt-2">
+            <% node.children.forEach(child => { %>
+                <% if (typeof child === 'object' && child !== null) { %>
+                    <%- include('node', { node: child, depth: depth + 1 }) %>
+                <% } else { %>
+                    <div class="node border-l-4 border-gray-300 pl-4 py-2 mb-2">
+                        <div class="flex items-center">
+                            <span class="mr-2 text-gray-400">●</span>
+                            <span class="text-gray-600">Reference ID: <%= child %></span>
+                        </div>
+                    </div>
+                <% } %>
+            <% }); %>
+        </div>
+    <% } %>
+</div>  

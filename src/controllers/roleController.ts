@@ -23,7 +23,14 @@ export class RoleController {
         locations, 
         assets 
       } = req.body;
-
+      const alreadythere = await Role.findOne({name:name});
+      // console.log(alreadythere)
+      if (alreadythere) {
+        return res.status(400).json({ 
+          status:false,
+          message: 'Role name already in use' 
+        });
+      }
       // Validate features
       if (features) {
         const validFeatures = await Feature.find({ 

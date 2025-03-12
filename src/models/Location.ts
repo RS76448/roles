@@ -6,7 +6,8 @@ const LocationSchema = new mongoose.Schema<ILocation>({
   name: {
     type: String,
     required: true,
-    trim: true
+    trim: true,
+    unique:true
   },
   assets: [{
     type: mongoose.Schema.Types.ObjectId,

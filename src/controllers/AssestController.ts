@@ -12,13 +12,14 @@ export class AssetController {
     try {
       const { name, locationId, description } = req.body;
 
-      // Validate location
-      // const location = await Location.findById(locationId);
-      // if (!location) {
-      //   return res.status(400).json({ 
-      //     message: 'Invalid location provided' 
-      //   });
-      // }
+      const alreadythere = await Asset.findOne({name:name});
+      // console.log(alreadythere)
+      if (alreadythere) {
+        return res.status(400).json({ 
+          status:false,
+          message: 'Asset name already in use' 
+        });
+      }
 
       const newAsset: IAsset = new Asset({
         name,
